@@ -245,7 +245,7 @@ void DRV2605Component::dump_config(){
 }
 
 bool DRV2605Component::write_byte(uint8_t a_register, uint8_t data, bool stop) {
-    ret = i2c::I2CDevice::write_byte(a_register, data, stop);
+    const auto ret = i2c::I2CDevice::write_byte(a_register, data, stop);
     if(!ret) {
         ESP_LOGE(TAG, "Write failed");
     }
@@ -253,7 +253,7 @@ bool DRV2605Component::write_byte(uint8_t a_register, uint8_t data, bool stop) {
 }
 
 bool DRV2605Component::read_byte(uint8_t a_register, uint8_t *data, bool stop) {
-    ret = i2c::I2CDevice::read_byte(a_register, data, stop);
+    const auto ret = i2c::I2CDevice::read_byte(a_register, data, stop);
     if(!ret) {
         ESP_LOGE(TAG, "Read failed");
     }
