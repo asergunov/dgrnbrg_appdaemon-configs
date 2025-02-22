@@ -95,7 +95,7 @@ async def to_code(config):
     print(f"DRV2605 name hash is {hex(hash_)}")
     cg.add(var.set_name_hash(hash_))
 
-    if en_pin := config[CONF_EN_PIN]:
+    if en_pin := config.get(CONF_EN_PIN):
         en_pin_var = await cg.gpio_pin_expression(en_pin)
         cg.add(var.set_en_pin(en_pin_var))
 
