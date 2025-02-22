@@ -16,9 +16,11 @@ void DRV2605Component::setup() {
         ESP_LOGW(TAG, "Calibration data found.");
     }
 
-    this->en_pin_->setup();
-    this->en_pin_->digital_write(0);
-    delay(25);
+    if(this->en_pin_) {
+        this->en_pin_->setup();
+        this->en_pin_->digital_write(0);
+        delay(25);
+    }
     this->pending_reset_ = false;
     this->en_pending_deassert_ = false;
     this->pending_calibrate_ = false;
@@ -26,8 +28,10 @@ void DRV2605Component::setup() {
 }
 
 void DRV2605Component::reset() {
-    this->en_pin_->digital_write(1);
-    delay(25);
+    if(this->en_pin_) {
+        this->en_pin_->digital_write(1);
+        delay(25);
+    }
     this->write_byte(MODE_REG, 0x80); // Perform a reset
     this->pending_reset_ = true;
     ESP_LOGD(TAG, "Initiated reset");
@@ -108,7 +112,9 @@ void DRV2605Component::populate_config_regs() {
 }
 
 void DRV2605Component::calibrate() {
-    this->en_pin_->digital_write(1);
+    if(this->en_pin_) {
+        this->en_pin_->digital_write(1);
+    }
     this->write_byte(MODE_REG, 0x0); // Move to out of standby
     delay(25);
     this->write_byte(MODE_REG, 0x7); // Move from standby to autocalibration
@@ -126,8 +132,10 @@ void DRV2605Component::fire_waveform(uint8_t waveform_id) {
     // Here's how to fire a waveform
     ESP_LOGD(TAG, "Firing a waveform %d", waveform_id);
     // pull EN pin high
-    this->en_pin_->digital_write(1);
-    delay(25);
+    if(this->en_pin_) {
+        this->en_pin_->digital_write(1);
+        delay(25);
+    }
     this->write_byte(MODE_REG, 0x0); // Wake up from standby to internal trigger
     delay(25);
     this->write_byte(WAVESEQ1, waveform_id);
@@ -161,8 +169,10 @@ void DRV2605Component::loop() {
                 ESP_LOGD(TAG, "don't forget to run autocalibration");
             }
             // pull EN pin low
-            this->en_pin_->digital_write(0);
-            this->pending_reset_ = false;
+            if(this->en_pin_) {
+                this->en_pin_->digital_write(0);
+                this->pending_reset_ = false;
+            }
         }
     }
     if (this->en_pending_deassert_) {
@@ -171,8 +181,10 @@ void DRV2605Component::loop() {
         if (!go_bit) {
             this->write_byte(MODE_REG, 0x0); // Move from autocalibration to internal trigger
             // pull EN pin low
-            this->en_pin_->digital_write(0);
-            this->en_pending_deassert_ = false;
+            if(this->en_pin_) {
+                this->en_pin_->digital_write(0);
+                this->en_pending_deassert_ = false;
+            }
         }
     }
     if (this->pending_calibrate_) {
@@ -204,8 +216,10 @@ void DRV2605Component::loop() {
             this->write_byte(LIB_REG, 6); // Select the tuned LRA library
 
             // pull EN pin low
-            this->en_pin_->digital_write(0);
-            this->pending_calibrate_ = false;
+            if(this->en_pin_) {
+                this->en_pin_->digital_write(0);
+                this->pending_calibrate_ = false;
+            }
         } else {
             ESP_LOGD(TAG, "Still waiting for calibration to complete");
         }

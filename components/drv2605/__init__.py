@@ -23,7 +23,7 @@ ResetAction = drv2605_ns.class_("ResetAction", automation.Action)
 
 CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(DRV2605Component),
-    cv.Required(CONF_EN_PIN): pins.internal_gpio_output_pin_schema,
+    cv.Optional(CONF_EN_PIN): pins.internal_gpio_output_pin_schema,
     cv.Required(CONF_RATED_VOLTAGE): cv.voltage,
     cv.Required(CONF_RESONANT_FREQUENCY): cv.frequency,
 }).extend(cv.COMPONENT_SCHEMA).extend(i2c.i2c_device_schema(CONF_I2C_ADDR))
@@ -89,14 +89,16 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
-    en_pin_var = await cg.gpio_pin_expression(config[CONF_EN_PIN])
 
     # hash the name to save prefs
     hash_ = int(hashlib.md5(config[CONF_ID].id.encode()).hexdigest()[:8], 16)
     print(f"DRV2605 name hash is {hex(hash_)}")
     cg.add(var.set_name_hash(hash_))
 
-    cg.add(var.set_en_pin(en_pin_var))
+    if en_pin := config[CONF_EN_PIN]:
+        en_pin_var = await cg.gpio_pin_expression(en_pin)
+        cg.add(var.set_en_pin(en_pin_var))
+
     cg.add(var.set_rated_voltage_reg(int(rated_voltage_reg)))
     cg.add(var.set_overdrive_reg(int(overdrive_reg)))
     cg.add(var.set_drive_time_reg_value(int(drive_time_reg)))

@@ -156,7 +156,7 @@ class DRV2605Component : public i2c::I2CDevice, public Component {
 
  protected:
   void populate_config_regs();
-    GPIOPin *en_pin_;
+    GPIOPin *en_pin_ = nullptr;
     bool en_pending_deassert_;
     bool pending_reset_;
     bool pending_calibrate_;
