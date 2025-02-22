@@ -154,6 +154,9 @@ class DRV2605Component : public i2c::I2CDevice, public Component {
   void reset();
   void set_name_hash(uint32_t name_hash) { this->name_hash_ = name_hash; }
 
+  bool write_byte(uint8_t a_register, uint8_t data, bool stop = true);
+  bool read_byte(uint8_t a_register, uint8_t *data, bool stop = true);
+
  protected:
   void populate_config_regs();
     GPIOPin *en_pin_ = nullptr;
